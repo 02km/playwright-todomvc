@@ -86,6 +86,21 @@ I set this up to be production-ready:
 - **Automatic retries** on failure
 - **Trace generation** for debugging
 
+## Error Handling - Because Things Break!
+
+I added comprehensive error handling to make debugging easier:
+- **Try-catch blocks** around all test logic
+- **Custom error messages** that actually tell you what went wrong
+- **URL validation** to catch navigation issues early
+- **Element visibility checks** before interactions
+- **Explicit timeouts** (5000ms) on all assertions
+
+This means if something fails, you'll get a clear error message like:
+```
+Test 1 failed: Failed to navigate to TodoMVC site
+```
+Instead of some cryptic Playwright error. Trust me, this saves hours of debugging!
+
 ## Why I Built It This Way
 
 I wanted to create a test suite that:
