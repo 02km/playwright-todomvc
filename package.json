@@ -1,0 +1,14 @@
+{
+  "name": "playwright-todomvc",
+  "version": "1.0.0",
+  "description": "Playwright test suite for TodoMVC",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx playwright test"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "devDependencies": {
+    "@playwright/test": "^1.44.0"
+  }
+}
