@@ -86,20 +86,22 @@ I set this up to be production-ready:
 - **Automatic retries** on failure
 - **Trace generation** for debugging
 
-## Error Handling - Because Things Break!
+## Robust Testing - Playwright's Way
 
-I added comprehensive error handling to make debugging easier:
-- **Try-catch blocks** around all test logic
-- **Custom error messages** that actually tell you what went wrong
-- **URL validation** to catch navigation issues early
-- **Element visibility checks** before interactions
-- **Explicit timeouts** (5000ms) on all assertions
+I followed Playwright best practices for reliable testing:
+- **Native error handling** - Playwright's expect assertions provide detailed error messages automatically
+- **Explicit timeouts** (5000ms) on all assertions for reliability
+- **Clean test structure** using beforeEach for shared setup
+- **Semantic locators** that are resilient to UI changes
+- **Proper test organization** with describe blocks
 
-This means if something fails, you'll get a clear error message like:
-```
-Test 1 failed: Failed to navigate to TodoMVC site
-```
-Instead of some cryptic Playwright error. Trust me, this saves hours of debugging!
+Playwright's built-in error reporting is excellent - it generates:
+- **Detailed error messages** showing exactly what failed
+- **Automatic traces** on first retry (configured in playwright.config.ts)
+- **HTML reports** with screenshots and timelines
+- **Stack traces** pointing to the exact line
+
+This approach keeps tests clean while leveraging Playwright's powerful debugging tools!
 
 ## Why I Built It This Way
 
