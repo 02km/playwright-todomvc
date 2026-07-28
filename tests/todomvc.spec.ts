@@ -1,21 +1,19 @@
 import { test, expect } from '@playwright/test';
 
-// Test 1 — Add and complete todos
-test('Test 1 — Add and complete todos', async ({ page }) => {
-  try {
-    // Navigate to the TodoMVC site
+test.describe('TodoMVC Functionality', () => {
+  
+  test.beforeEach(async ({ page }) => {
     await page.goto('https://demo.playwright.dev/todomvc');
-    if (!page.url().includes('demo.playwright.dev/todomvc')) {
-      throw new Error('Failed to navigate to TodoMVC site');
-    }
+    await expect(page).toHaveURL(/.*todomvc/);
+  });
 
-    // Setup locators using semantic selectors
+  test('Test 1 — Add and complete todos', async ({ page }) => {
+    // Locators
     const todoInput = page.getByPlaceholder('What needs to be done?');
     const todoItems = page.getByTestId('todo-title');
     const todoCount = page.getByTestId('todo-count');
-
-    // Verify input field is available
-    await expect(todoInput).toBeVisible({ timeout: 5000 });
+    const buyMilkItem = page.getByTestId('todo-item').filter({ hasText: 'Buy milk' });
+    const writeTestItem = page.getByTestId('todo-item').filter({ hasText: 'Write Playwright test' });
 
     // Step 1: Add two todo items
     await todoInput.fill('Buy milk');
@@ -24,54 +22,24 @@ test('Test 1 — Add and complete todos', async ({ page }) => {
     await todoInput.press('Enter');
 
     // Step 2: Verify both items were added and counter is correct
-    await expect(todoItems).toHaveText(['Buy milk', 'Write Playwright test'], {
-      timeout: 5000
-    });
-    await expect(todoCount).toHaveText('2 items left', {
-      timeout: 5000
-    });
+    await expect(todoItems).toHaveText(['Buy milk', 'Write Playwright test']);
+    await expect(todoCount).toHaveText(/2 items left/);
 
     // Step 3: Complete the first todo item
-    const buyMilkItem = page.getByTestId('todo-item').filter({ hasText: 'Buy milk' });
-    await expect(buyMilkItem).toBeVisible();
     await buyMilkItem.getByRole('checkbox').check();
 
     // Step 4: Verify completion state and updated counter
-    await expect(buyMilkItem).toHaveClass(/completed/, {
-      timeout: 5000
-    });
-    await expect(todoCount).toHaveText('1 item left', {
-      timeout: 5000
-    });
+    await expect(buyMilkItem).toHaveClass(/completed/);
+    await expect(todoCount).toHaveText(/1 item left/);
+    await expect(writeTestItem).not.toHaveClass(/completed/);
+  });
 
-    // Verify the second item remains active
-    const secondItem = page.getByTestId('todo-item').filter({ hasText: 'Write Playwright test' });
-    await expect(secondItem).not.toHaveClass(/completed/, {
-      timeout: 5000
-    });
-
-  } catch (error) {
-    const err = error as Error;
-    console.error('Test 1 failed:', err.message);
-    throw err;
-  }
-});
-
-// Test 2 — Filter behaviour is correct
-test('Test 2 — Filter behaviour is correct', async ({ page }) => {
-  try {
-    // Navigate to the TodoMVC site
-    await page.goto('https://demo.playwright.dev/todomvc');
-    if (!page.url().includes('demo.playwright.dev/todomvc')) {
-      throw new Error('Failed to navigate to TodoMVC site in Test 2');
-    }
-
-    // Setup locators for filter test
+  test('Test 2 — Filter behaviour is correct', async ({ page }) => {
     const todoInput = page.getByPlaceholder('What needs to be done?');
     const todoItems = page.getByTestId('todo-title');
-
-    // Verify input field is available
-    await expect(todoInput).toBeVisible({ timeout: 5000 });
+    const activeFilter = page.getByRole('link', { name: 'Active' });
+    const completedFilter = page.getByRole('link', { name: 'Completed' });
+    const allFilter = page.getByRole('link', { name: 'All' });
 
     // Precondition: Create 3 todos and mark "Task B" as completed
     const tasks = ['Task A', 'Task B', 'Task C'];
@@ -80,37 +48,24 @@ test('Test 2 — Filter behaviour is correct', async ({ page }) => {
       await todoInput.press('Enter');
     }
 
-    const taskBItem = page.getByTestId('todo-item').filter({ hasText: 'Task B' });
-    await expect(taskBItem).toBeVisible();
-    await taskBItem.getByRole('checkbox').check();
+    await page.getByTestId('todo-item')
+      .filter({ hasText: 'Task B' })
+      .getByRole('checkbox')
+      .check();
 
-    // Test Active filter - should only show incomplete tasks
-    await page.getByRole('link', { name: 'Active' }).click();
-    await expect(todoItems).toHaveText(['Task A', 'Task C'], {
-      timeout: 5000
-    });
-    await expect(todoItems).not.toContainText(['Task B'], {
-      timeout: 5000
-    });
+    // 1. Active filter
+    await activeFilter.click();
+    await expect(todoItems).toHaveText(['Task A', 'Task C']);
+    await expect(todoItems).not.toContainText(['Task B']);
 
-    // Test Completed filter - should only show completed tasks
-    await page.getByRole('link', { name: 'Completed' }).click();
-    await expect(todoItems).toHaveText(['Task B'], {
-      timeout: 5000
-    });
-    await expect(todoItems).not.toContainText(['Task A', 'Task C'], {
-      timeout: 5000
-    });
+    // 2. Completed filter
+    await completedFilter.click();
+    await expect(todoItems).toHaveText(['Task B']);
+    await expect(todoItems).not.toContainText(['Task A', 'Task C']);
 
-    // Test All filter - should show all tasks regardless of completion status
-    await page.getByRole('link', { name: 'All' }).click();
-    await expect(todoItems).toHaveText(['Task A', 'Task B', 'Task C'], {
-      timeout: 5000
-    });
+    // 3. All filter
+    await allFilter.click();
+    await expect(todoItems).toHaveText(['Task A', 'Task B', 'Task C']);
+  });
 
-  } catch (error) {
-    const err = error as Error;
-    console.error('Test 2 failed:', err.message);
-    throw err;
-  }
 });
